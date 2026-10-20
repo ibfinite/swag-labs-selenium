@@ -1,4 +1,6 @@
-﻿plugins {
+﻿import java.util.Properties
+
+plugins {
     id("java")
     id("io.qameta.allure") version "4.3.0"
 }
@@ -44,7 +46,11 @@ tasks.test {
     useTestNG()
 
     // Tests run in a separate JVM, so pass -D overrides from the Gradle command line through to it.
-    listOf("base.url", "browser", "headless", "timeout.seconds").forEach { key ->
+    // Every key in config.properties can be overridden, so new keys need no change here.
+    val configKeys = Properties().apply {
+        file("src/test/resources/config.properties").reader().use { load(it) }
+    }.stringPropertyNames()
+    configKeys.forEach { key ->
         providers.systemProperty(key).orNull?.let { systemProperty(key, it) }
     }
 }

@@ -7,8 +7,13 @@ import java.time.Duration;
 import java.util.Properties;
 
 /**
- * Reads framework settings from config.properties on the classpath.
- * A JVM system property with the same key (-Dkey=value) takes precedence over the file.
+ * Reads framework settings. Each key is resolved in this order:
+ * <ol>
+ *     <li>JVM system property, e.g. -Dheadless=true</li>
+ *     <li>environment variable, key upper-cased with dots as underscores, e.g. USER_PASSWORD</li>
+ *     <li>config.properties on the classpath</li>
+ * </ol>
+ * Environment variables are how CI servers inject secrets such as credentials.
  */
 public final class ConfigReader {
 
@@ -34,8 +39,30 @@ public final class ConfigReader {
         return Duration.ofSeconds(Long.parseLong(get("timeout.seconds")));
     }
 
+    public static Duration getSlowMotion() {
+        return Duration.ofMillis(Long.parseLong(get("slow.motion.ms")));
+    }
+
+    /**
+     * Username for a configured user, read from user.&lt;name&gt;.username
+     * (environment variable USER_&lt;NAME&gt;_USERNAME), e.g. getUsername("standard").
+     */
+    public static String getUsername(String user) {
+        return get("user." + user + ".username");
+    }
+
+    public static String getPassword() {
+        return get("user.password");
+    }
+
     private static String get(String key) {
-        String value = System.getProperty(key, PROPERTIES.getProperty(key));
+        String value = System.getProperty(key);
+        if (value == null) {
+            value = System.getenv(key.toUpperCase().replace('.', '_'));
+        }
+        if (value == null) {
+            value = PROPERTIES.getProperty(key);
+        }
         if (value == null || value.isBlank()) {
             throw new IllegalStateException("Missing config value for '" + key + "'");
         }
