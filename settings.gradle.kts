@@ -1,0 +1,1 @@
+rootProject.name = "swag-labs-selenium"
