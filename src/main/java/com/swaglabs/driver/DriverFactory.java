@@ -33,8 +33,12 @@ public final class DriverFactory {
     public static void quitDriver() {
         WebDriver driver = DRIVER.get();
         if (driver != null) {
-            driver.quit();
-            DRIVER.remove();
+            try {
+                driver.quit();
+            } finally {
+                // Clear the thread's driver even if quit() fails, so it is never reused
+                DRIVER.remove();
+            }
         }
     }
 

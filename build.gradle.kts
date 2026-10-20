@@ -48,7 +48,7 @@ tasks.test {
     // Tests run in a separate JVM, so pass -D overrides from the Gradle command line through to it.
     // Every key in config.properties can be overridden, so new keys need no change here.
     val configKeys = Properties().apply {
-        file("src/test/resources/config.properties").reader().use { load(it) }
+        file("src/main/resources/config.properties").reader().use { load(it) }
     }.stringPropertyNames()
     configKeys.forEach { key ->
         providers.systemProperty(key).orNull?.let { systemProperty(key, it) }

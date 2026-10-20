@@ -20,7 +20,7 @@ import static com.swaglabs.data.TestData.*;
 @Feature("Checkout")
 public class EndToEndTests extends BaseTest {
 
-    @Test(description = "Standard user logs in, adds a product to the cart and completes checkout")
+    @Test(description = "Standard user logs in, adds a product to the cart, completes checkout and logs out")
     @Severity(SeverityLevel.BLOCKER)
     public void purchaseSingleProduct() {
         LoginPage loginPage = new LoginPage(getDriver());
@@ -50,5 +50,8 @@ public class EndToEndTests extends BaseTest {
         CheckoutCompletePage completePage = overviewPage.finish();
         Assert.assertTrue(completePage.isLoaded(), "Checkout complete page did not load");
         Assert.assertEquals(completePage.getConfirmationHeader(), ORDER_CONFIRMATION_HEADER, "Confirmation header");
+
+        LoginPage loginPageAfterLogout = completePage.logout();
+        Assert.assertTrue(loginPageAfterLogout.isLoaded(), "Login page did not load after logout");
     }
 }
